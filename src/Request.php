@@ -107,10 +107,6 @@ class Request
         $info = curl_getinfo($ch);
         curl_close($ch);
 
-        if ($method=='GET') {
-            print_r($entryPoint.$request);
-        }
-
         if (in_array($info['http_code'], [401, 403, 404, 500])) {
             $content = json_decode($res, JSON_OBJECT_AS_ARRAY);
 
