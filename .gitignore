@@ -1,0 +1,15 @@
+#eclipse
+.project
+
+#phpstorm
+.idea
+
+#composer
+composer.lock
+composer.phar
+vendor
+
+#phpbench
+_storage
+
+phpunit.xml

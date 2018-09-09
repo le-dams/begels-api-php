@@ -1,0 +1,33 @@
+{
+  "name": "begels/begels-api-php",
+  "description": "Begels API",
+  "type": "library",
+  "keywords": [
+    "begels"
+  ],
+  "homepage": "https://bitbucket.org/dbconsulting/begels-tools",
+  "authors": [{
+    "name":     "Damien Bourcy",
+    "email":    "damien.bourcy@begels.com",
+    "homepage": "http://begels.com/",
+    "role":     "Lead"
+  }],
+  "license": "BSD-3-Clause",
+  "require": {
+    "php":            ">=7.1",
+    "ext-reflection": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^5.7 || ^6.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Begels\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "BegelsTest\\":  "tests/BegelsTest/"
+    }
+  }
+}
