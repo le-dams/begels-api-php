@@ -72,7 +72,7 @@ class Request
         $ch = curl_init();
 
         if (Authenticate::isLive()) {
-            $entryPoint = 'https://api.begels.be';
+            $entryPoint = 'https://api.begels.com';
         } else {
             $entryPoint = 'https://api.begels.ovh';
         }
