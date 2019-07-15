@@ -30,7 +30,7 @@ class Article
     private $name;
 
     /**
-     * @var Category
+     * @var Category|null
      */
     private $category;
 
@@ -119,17 +119,17 @@ class Article
     }
 
     /**
-     * @return Category
+     * @return Category|null
      */
-    public function getCategory(): Category
+    public function getCategory(): ?Category
     {
         return $this->category;
     }
 
     /**
-     * @param Category $category
+     * @param Category|null $category
      */
-    public function setCategory(Category $category): void
+    public function setCategory(?Category $category): void
     {
         $this->category = $category;
     }
