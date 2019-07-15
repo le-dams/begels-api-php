@@ -9,6 +9,7 @@ use Begels\Authenticate;
 use Begels\Model\Address;
 use Begels\Model\Article;
 use Begels\Model\Customer;
+use Begels\Request;
 use PHPUnit\Framework\TestCase;
 
 class IndexTest extends TestCase

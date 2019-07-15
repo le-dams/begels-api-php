@@ -61,6 +61,26 @@ class Request
     }
 
     /**
+     * @return array|null
+     * @throws BegelsUnavailableException
+     */
+    public static function check(): array
+    {
+        return self::call();
+    }
+
+    /**
+     * @return string
+     */
+    private static function getEntryPoint(): string
+    {
+        if (Authenticate::isLive()) {
+           return 'https://api.begels.com';
+        }
+        return'https://api.begels.ovh';
+    }
+
+    /**
      * @param string $method
      * @param string $request
      * @param array $params
@@ -70,12 +90,6 @@ class Request
     private static function call(string $method = 'GET', string $request = '/', array $params = []) :? array
     {
         $ch = curl_init();
-
-        if (Authenticate::isLive()) {
-            $entryPoint = 'https://api.begels.com';
-        } else {
-            $entryPoint = 'https://api.begels.ovh';
-        }
 
         $headers = [
             "Content-Type: application/json",
@@ -87,7 +101,7 @@ class Request
             $headers[] = "x-auth-begels: ".Authenticate::getCustomerApiKey();
         }
 
-        curl_setopt($ch, CURLOPT_URL, $entryPoint.$request);
+        curl_setopt($ch, CURLOPT_URL, self::getEntryPoint().$request);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
