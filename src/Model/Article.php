@@ -240,6 +240,28 @@ class Article
     }
 
     /**
+     * @return Article[]|null
+     * @throws \Begels\Exception\BegelsUnavailableException
+     */
+    static public function getsPublic(): array
+    {
+        $result = [];
+        $data =  Request::get('/articles/public');
+
+        $articles = isset($data['articles']) ? $data['articles'] : null;
+
+        if (!$articles) {
+            return $result;
+        }
+
+        foreach ($articles as $article) {
+            $result[] = self::hydrate($article);
+        }
+
+        return $result;
+    }
+
+    /**
      * @param array $data
      * @return Article
      */
