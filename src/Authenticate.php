@@ -24,14 +24,14 @@ class Authenticate
 
     /**
      * @param string $factory
-     * @param string $login
+     * @param string $email
      * @param string $password
      * @param bool $live
      * @return bool
      * @throws BegelsUnavailableException
      * @throws BegelsDeniedException
      */
-    static public function init(string $factory, string $login, string $password, bool $live = true)
+    static public function init(string $factory, string $email, string $password, bool $live = true)
     {
         self::$live = $live;
         if (self::$customerApiKey) {
@@ -40,7 +40,7 @@ class Authenticate
 
         $params = [
             'factory' => $factory,
-            'email' => $login,
+            'email' => $email,
             'password' => $password
         ];
 
