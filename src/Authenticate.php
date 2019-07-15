@@ -40,7 +40,7 @@ class Authenticate
 
         $params = [
             'factory' => $factory,
-            'login' => $login,
+            'email' => $login,
             'password' => $password
         ];
 
