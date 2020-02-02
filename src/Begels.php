@@ -25,7 +25,7 @@ class Begels
      * @var string|null
      */
     private $password;
-    
+
     /**
      * @var string|null
      */
@@ -82,7 +82,10 @@ class Begels
     private function getToken(): ?string
     {
         if (file_exists($this->cacheFile) && is_file($this->cacheFile)) {
-            return file_get_contents($this->cacheFile);
+            $token = file_get_contents($this->cacheFile);
+            if ($token) {
+                return $token;
+            }
         }
         return $this->token;
     }
@@ -190,7 +193,7 @@ class Begels
                 $this->setToken($responseToken['auth']);
             }
         }
-        
+
         $headers = [
             "Content-Type: application/json",
             "X-Requested-With: XMLHttpRequest",
