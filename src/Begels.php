@@ -12,17 +12,17 @@ class Begels
     private $baseUri;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $factory;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $email;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $password;
     
@@ -37,19 +37,34 @@ class Begels
     private $cacheFile;
 
     /**
-     * Begels constructor.
      * @param string $baseUri
-     * @param string $factory
-     * @param string $email
-     * @param string $password
-     * @throws BegelsUnavailableException
-     * @throws Exception\BegelsDeniedException
      */
-    public function __construct(string $baseUri, string $factory, string $email, string $password)
+    public function setBaseUri(string $baseUri): void
     {
         $this->baseUri = $baseUri;
+    }
+
+    /**
+     * @param string|null $factory
+     */
+    public function setFactory(?string $factory): void
+    {
         $this->factory = $factory;
+    }
+
+    /**
+     * @param string|null $email
+     */
+    public function setEmail(?string $email): void
+    {
         $this->email = $email;
+    }
+
+    /**
+     * @param string|null $password
+     */
+    public function setPassword(?string $password): void
+    {
         $this->password = $password;
     }
 
@@ -59,6 +74,31 @@ class Begels
     public function setCacheFile(?string $cacheFile): void
     {
         $this->cacheFile = $cacheFile;
+    }
+
+    /**
+     * @return string|null
+     */
+    private function getToken(): ?string
+    {
+        if (file_exists($this->cacheFile) && is_file($this->cacheFile)) {
+            return file_get_contents($this->cacheFile);
+        }
+        return $this->token;
+    }
+
+    /**
+     * @param string|null $token
+     * @return bool
+     */
+    private function setToken(?string $token): bool
+    {
+        if (file_exists($this->cacheFile) && is_file($this->cacheFile)) {
+            file_put_contents($this->cacheFile, $token);
+            return true;
+        }
+        $this->token = $token;
+        return true;
     }
 
     /**
@@ -126,31 +166,6 @@ class Begels
     public function delete(string $request) :? array
     {
         return $this->call('DELETE', $request);
-    }
-
-    /**
-     * @return string|null
-     */
-    private function getToken(): ?string
-    {
-        if (file_exists($this->cacheFile) && is_file($this->cacheFile)) {
-            return file_get_contents($this->cacheFile);
-        }
-        return $this->token;
-    }
-
-    /**
-     * @param string|null $token
-     * @return bool
-     */
-    private function setToken(?string $token): bool
-    {
-        if (file_exists($this->cacheFile) && is_file($this->cacheFile)) {
-            file_put_contents($this->cacheFile, $token);
-            return true;
-        }
-        $this->token = $token;
-        return true;
     }
 
     /**

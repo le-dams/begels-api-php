@@ -1,7 +1,4 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- */
 
 namespace BegelsTest;
 
@@ -16,7 +13,13 @@ class IndexTest extends TestCase
      */
     public function testIndex()
     {
-        $begels = new Begels(getenv('BEGELS_BASE_URI'), getenv('BEGELS_FACTORY'), getenv('BEGELS_EMAIL'), getenv('BEGELS_PASSWORD'));
+        $begels = new Begels();
+
+        $begels->setBaseUri(getenv('BEGELS_BASE_URI'));
+        $begels->setFactory(getenv('BEGELS_FACTORY'));
+        $begels->setEmail(getenv('BEGELS_EMAIL'));
+        $begels->setPassword(getenv('BEGELS_PASSWORD'));
+
         $this->assertTrue($begels->check());
     }
 }
