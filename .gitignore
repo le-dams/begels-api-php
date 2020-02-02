@@ -12,4 +12,4 @@ vendor
 #phpbench
 _storage
 
-phpunit.xml
+tests/phpunit.xml

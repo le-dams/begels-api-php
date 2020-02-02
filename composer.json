@@ -5,17 +5,16 @@
   "keywords": [
     "begels"
   ],
-  "homepage": "https://bitbucket.org/dbconsulting/begels-tools",
+  "homepage": "https://github.com/le-dams/begels-api-php",
   "authors": [{
     "name":     "Damien Bourcy",
     "email":    "damien.bourcy@begels.com",
-    "homepage": "http://begels.com/",
+    "homepage": "https://www.begels.com/",
     "role":     "Lead"
   }],
   "license": "BSD-3-Clause",
   "require": {
     "php":            ">=7.1",
-    "ext-reflection": "*",
     "ext-curl": "*",
     "ext-json": "*"
   },

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <phpunit
-        bootstrap="./tests/bootstrap.php"
+        bootstrap="./bootstrap.php"
         convertErrorsToExceptions="true"
         convertNoticesToExceptions="true"
         convertWarningsToExceptions="true"
@@ -14,7 +14,7 @@
         beStrictAboutCoversAnnotation="true"
 >
     <testsuite name="begels Test-Suite">
-        <directory>./tests</directory>
+        <directory>./</directory>
     </testsuite>
     <filter>
         <whitelist addUncoveredFilesFromWhitelist="true">
@@ -24,5 +24,9 @@
     <php>
         <ini name="zend.assertions" value="1"/>
         <ini name="assert.exception" value="1"/>
+        <env name="BEGELS_BASE_URI" value="http://api.begels.com" force="true" />
+        <env name="BEGELS_FACTORY" value="" force="true" />
+        <env name="BEGELS_EMAIL" value="" force="true" />
+        <env name="BEGELS_PASSWORD" value="" force="true" />
     </php>
 </phpunit>
