@@ -2,112 +2,103 @@
 
 namespace Begels;
 
-use Begels\Exception\BegelsUnavailableException;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class Begels
 {
     /**
      * @var string
      */
-    private $baseUri;
+    private $baseUri = 'https://api.begels.com';
 
     /**
-     * @var string|null
+     * @var string
      */
-    private $factory;
+    private $apiKey;
 
     /**
-     * @var string|null
+     * @var string
      */
-    private $email;
+    private $secretKey;
 
     /**
-     * @var string|null
+     * @var Client
      */
-    private $password;
+    private $client;
 
     /**
-     * @var string|null
+     * @var LoggerInterface
      */
-    private $token;
+    private $logger;
 
     /**
-     * @var string|null
+     * @var bool
      */
-    private $cacheFile;
+    private $debug = false;
 
     /**
-     * @param string $baseUri
+     * Begels constructor.
+     * @param string $apiKey
+     * @param string $secretKey
+     * @param bool $debug
+     * @param string|null $baseUri
      */
-    public function setBaseUri(string $baseUri): void
+    public function __construct(string $apiKey, string $secretKey, bool $debug = false, ?string $baseUri = null)
     {
-        $this->baseUri = $baseUri;
-    }
-
-    /**
-     * @param string|null $factory
-     */
-    public function setFactory(?string $factory): void
-    {
-        $this->factory = $factory;
-    }
-
-    /**
-     * @param string|null $email
-     */
-    public function setEmail(?string $email): void
-    {
-        $this->email = $email;
-    }
-
-    /**
-     * @param string|null $password
-     */
-    public function setPassword(?string $password): void
-    {
-        $this->password = $password;
-    }
-
-    /**
-     * @param string|null $cacheFile
-     */
-    public function setCacheFile(?string $cacheFile): void
-    {
-        $this->cacheFile = $cacheFile;
-    }
-
-    /**
-     * @return string|null
-     */
-    private function getToken(): ?string
-    {
-        if (file_exists($this->cacheFile) && is_file($this->cacheFile)) {
-            $token = file_get_contents($this->cacheFile);
-            if ($token) {
-                return $token;
-            }
+        $this->apiKey = $apiKey;
+        $this->secretKey = $secretKey;
+        $this->debug = $debug;
+        if ($baseUri) {
+            $this->baseUri = $baseUri;
         }
-        return $this->token;
     }
 
     /**
-     * @param string|null $token
-     * @return bool
+     * @return LoggerInterface
      */
-    private function setToken(?string $token): bool
+    private function getLogger(): LoggerInterface
     {
-        if (file_exists($this->cacheFile) && is_file($this->cacheFile)) {
-            file_put_contents($this->cacheFile, $token);
-            return true;
+        if ($this->logger === null || $this->debug === null) {
+            return new NullLogger();
         }
-        $this->token = $token;
-        return true;
+        return $this->logger;
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
+    }
+
+    /**
+     * @return Client
+     */
+    private function getClient(): Client
+    {
+        if (!$this->client instanceof Client) {
+            $headers = [
+                "Content-Type' => 'application/json",
+                'x-api-key' => 'x9uZ5rWmCv2fJtLt6tFC',
+                'Authorization' => 'Basic '.base64_encode($this->apiKey.':'.$this->secretKey),
+            ];
+            $this->client = new Client([
+                'base_uri' => $this->baseUri,
+                'headers' => $headers,
+            ]);
+        }
+
+        return $this->client;
     }
 
     /**
      * @param string $request
      * @return array|null
-     * @throws BegelsUnavailableException
      */
     public function get(string $request) :? array
     {
@@ -119,9 +110,7 @@ class Begels
         $me = $this->get('/me');
         if (!is_array($me)) {
             return false;
-        } else if (!isset($me['factory']['reference'])) {
-            return false;
-        } else if ($me['factory']['reference'] !== $this->factory) {
+        } else if (!isset($me['apps'])) {
             return false;
         }
         return true;
@@ -131,7 +120,6 @@ class Begels
      * @param string $request
      * @param array $params
      * @return array|null
-     * @throws BegelsUnavailableException
      */
     public function post(string $request, array $params = []) :? array
     {
@@ -142,7 +130,6 @@ class Begels
      * @param string $request
      * @param array $params
      * @return array|null
-     * @throws BegelsUnavailableException
      */
     public function put(string $request, array $params = []) :? array
     {
@@ -154,7 +141,6 @@ class Begels
      * @param string $request
      * @param array $params
      * @return array|null
-     * @throws BegelsUnavailableException
      */
     public function patch(string $request, array $params = []) :? array
     {
@@ -162,9 +148,8 @@ class Begels
     }
 
     /**
-     * @param $request
+     * @param string $request
      * @return array|null
-     * @throws BegelsUnavailableException
      */
     public function delete(string $request) :? array
     {
@@ -173,70 +158,30 @@ class Begels
 
     /**
      * @param string $method
-     * @param string $request
+     * @param string $uri
      * @param array $params
-     * @param bool $tokenNeeded
      * @return array|null
-     * @throws BegelsUnavailableException
      */
-    private function call(string $method = 'GET', string $request = '/', array $params = [], bool $tokenNeeded = true) :? array
+    private function call(string $method = 'GET', string $uri = '/', array $params = []) :? array
     {
-        $ch = curl_init();
-
-        if ($this->getToken() === null && $tokenNeeded === true) {
-            $responseToken = $this->call('POST','/login', [
-                'factory' => $this->factory,
-                'email' => $this->email,
-                'password' => $this->password
-            ], false);
-            if (isset($responseToken['auth'])) {
-                $this->setToken($responseToken['auth']);
+        try {
+            switch (strtolower($method)) {
+                case 'get':
+                    $response = $this->getClient()->get($uri);
+                    break;
+                default:
+                    $response = $this->getClient()->request($method, $uri, [
+                        'json' => $params
+                    ]);
+                    break;
             }
+            return \json_decode($response->getBody()->getContents(), true);
+        } catch (ServerException $e) {
+            $this->getLogger()->error($e);
+            throw $e;
+        } catch (ClientException $e) {
+            $this->getLogger()->warning($e);
+            throw $e;
         }
-
-        $headers = [
-            "Content-Type: application/json",
-            "X-Requested-With: XMLHttpRequest",
-            "x-api-key: ".Authenticate::getApiKey()
-        ];
-
-        if ($this->getToken()) {
-            $headers[] = "Authentication: Bearer ".$this->getToken();
-        }
-
-        curl_setopt($ch, CURLOPT_URL, $this->baseUri.$request);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        switch ($method) {
-            case 'POST':
-                curl_setopt($ch, CURLOPT_POST,1);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
-                break;
-            case 'PUT':
-            case 'DELETE':
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
-                break;
-        }
-        $res = curl_exec ($ch);
-        $info = curl_getinfo($ch);
-        curl_close($ch);
-
-        if (in_array($info['http_code'], [401, 403, 404, 500])) {
-            if (in_array($info['http_code'], [401])) {
-                $this->setToken(null);
-            }
-            $content = json_decode($res, JSON_OBJECT_AS_ARRAY);
-
-            if (isset($content['message'])) {
-                throw new BegelsUnavailableException(print_r($res, true), $info['http_code']);
-            }
-            throw new BegelsUnavailableException(print_r($res, true), $info['http_code']);
-        }
-
-        return is_array($res) ? $res : json_decode($res, JSON_OBJECT_AS_ARRAY);
     }
-
 }

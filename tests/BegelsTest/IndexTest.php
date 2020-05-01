@@ -7,18 +7,12 @@ use PHPUnit\Framework\TestCase;
 
 class IndexTest extends TestCase
 {
-    /**
-     * @throws \Begels\Exception\BegelsDeniedException
-     * @throws \Begels\Exception\BegelsUnavailableException
-     */
     public function testIndex()
     {
-        $begels = new Begels();
-
-        $begels->setBaseUri(getenv('BEGELS_BASE_URI'));
-        $begels->setFactory(getenv('BEGELS_FACTORY'));
-        $begels->setEmail(getenv('BEGELS_EMAIL'));
-        $begels->setPassword(getenv('BEGELS_PASSWORD'));
+        $appKey = getenv('BEGELS_APP_KEY');
+        $secretKey = getenv('BEGELS_SECRET_KEY');
+        $baseUrl = getenv('BEGELS_BASE_URI');
+        $begels = new Begels($appKey, $secretKey, true, $baseUrl);
 
         $this->assertTrue($begels->check());
     }

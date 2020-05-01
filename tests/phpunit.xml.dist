@@ -24,9 +24,8 @@
     <php>
         <ini name="zend.assertions" value="1"/>
         <ini name="assert.exception" value="1"/>
+        <env name="BEGELS_APP_KEY" value="" force="true" />
+        <env name="BEGELS_SECRET_KEY" value="" force="true" />
         <env name="BEGELS_BASE_URI" value="http://api.begels.com" force="true" />
-        <env name="BEGELS_FACTORY" value="" force="true" />
-        <env name="BEGELS_EMAIL" value="" force="true" />
-        <env name="BEGELS_PASSWORD" value="" force="true" />
     </php>
 </phpunit>

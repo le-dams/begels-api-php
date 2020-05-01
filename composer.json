@@ -15,8 +15,9 @@
   "license": "BSD-3-Clause",
   "require": {
     "php":            ">=7.1",
-    "ext-curl": "*",
-    "ext-json": "*"
+    "ext-json": "*",
+    "guzzlehttp/guzzle": "^6",
+    "psr/log": "^1"
   },
   "require-dev": {
     "phpunit/phpunit": "*"
