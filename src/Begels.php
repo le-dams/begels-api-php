@@ -18,7 +18,7 @@ class Begels
     /**
      * @var string
      */
-    private $apiKey;
+    private $appKey;
 
     /**
      * @var string
@@ -42,14 +42,14 @@ class Begels
 
     /**
      * Begels constructor.
-     * @param string $apiKey
+     * @param string $appKey
      * @param string $secretKey
      * @param bool $debug
      * @param string|null $baseUri
      */
-    public function __construct(string $apiKey, string $secretKey, bool $debug = false, ?string $baseUri = null)
+    public function __construct(string $appKey, string $secretKey, bool $debug = false, ?string $baseUri = null)
     {
-        $this->apiKey = $apiKey;
+        $this->appKey = $appKey;
         $this->secretKey = $secretKey;
         $this->debug = $debug;
         if ($baseUri) {
@@ -60,7 +60,7 @@ class Begels
     /**
      * @return LoggerInterface
      */
-    private function getLogger(): LoggerInterface
+    protected function getLogger(): LoggerInterface
     {
         if ($this->logger === null || $this->debug === null) {
             return new NullLogger();
@@ -69,11 +69,27 @@ class Begels
     }
 
     /**
-     * @param LoggerInterface $logger
+     * @param LoggerInterface|null $logger
      */
-    public function setLogger(LoggerInterface $logger): void
+    public function setLogger(?LoggerInterface $logger = null): void
     {
         $this->logger = $logger;
+    }
+
+    /**
+     * @param bool $debug
+     */
+    public function setDebug(bool $debug): void
+    {
+        $this->debug = $debug;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDebug(): bool
+    {
+        return $this->debug;
     }
 
     /**
@@ -85,7 +101,7 @@ class Begels
             $headers = [
                 "Content-Type' => 'application/json",
                 'x-api-key' => 'x9uZ5rWmCv2fJtLt6tFC',
-                'Authorization' => 'Basic '.base64_encode($this->apiKey.':'.$this->secretKey),
+                'Authorization' => 'Basic '.base64_encode($this->appKey.':'.$this->secretKey),
             ];
             $this->client = new Client([
                 'base_uri' => $this->baseUri,
