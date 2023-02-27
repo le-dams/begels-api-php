@@ -13,43 +13,43 @@ class Begels
     /**
      * @var string
      */
-    private $baseUri = 'https://api.begels.com';
+    private string $baseUri = 'https://api.begels.com';
 
     /**
-     * @var string
+     * @var string|null
      */
-    private $appKey;
+    private ?string $clientName = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private $secretKey;
+    private ?string $secretKey = null;
 
     /**
-     * @var Client
+     * @var Client|null
      */
-    private $client;
+    private ?Client $client = null;
 
     /**
-     * @var LoggerInterface
+     * @var LoggerInterface|null
      */
-    private $logger;
+    private ?LoggerInterface $logger = null;
 
     /**
      * @var bool
      */
-    private $debug = false;
+    private bool $debug = false;
 
     /**
      * Begels constructor.
-     * @param string $appKey
+     * @param string $clientName
      * @param string $secretKey
      * @param bool $debug
      * @param string|null $baseUri
      */
-    public function __construct(string $appKey, string $secretKey, bool $debug = false, ?string $baseUri = null)
+    public function __construct(string $clientName, string $secretKey, bool $debug = false, ?string $baseUri = null)
     {
-        $this->appKey = $appKey;
+        $this->clientName = $clientName;
         $this->secretKey = $secretKey;
         $this->debug = $debug;
         if ($baseUri) {
@@ -62,10 +62,10 @@ class Begels
      */
     protected function getLogger(): LoggerInterface
     {
-        if ($this->logger === null || $this->debug === null) {
-            return new NullLogger();
+        if ($this->logger instanceof LoggerInterface) {
+            return $this->logger;
         }
-        return $this->logger;
+        return new NullLogger();
     }
 
     /**
@@ -99,9 +99,10 @@ class Begels
     {
         if (!$this->client instanceof Client) {
             $headers = [
-                "Content-Type' => 'application/json",
+                'Content-Type' => 'application/json',
                 'x-api-key' => 'x9uZ5rWmCv2fJtLt6tFC',
-                'Authorization' => 'Basic '.base64_encode($this->appKey.':'.$this->secretKey),
+                'x-api-client' => $this->clientName,
+                'Authorization' => 'Bearer '.$this->secretKey,
             ];
             $this->client = new Client([
                 'base_uri' => $this->baseUri,
@@ -121,15 +122,18 @@ class Begels
         return $this->call('GET', $request);
     }
 
-    public function check(): bool
+    public function ping(): bool
     {
-        $me = $this->get('/me');
-        if (!is_array($me)) {
+        try {
+            $this->get('/me');
+            return true;
+        } catch (ClientException $clientException) {
+            $this->getLogger()->error($clientException);
             return false;
-        } else if (!isset($me['apps'])) {
-            return false;
+        } catch (\Exception $exception) {
+            $this->getLogger()->emergency($exception);
+            throw $exception;
         }
-        return true;
     }
 
     /**
@@ -193,10 +197,10 @@ class Begels
             }
             return \json_decode($response->getBody()->getContents(), true);
         } catch (ServerException $e) {
-            $this->getLogger()->error($e);
+            $this->getLogger()->alert($e);
             throw $e;
         } catch (ClientException $e) {
-            $this->getLogger()->warning($e);
+            $this->getLogger()->error($e);
             throw $e;
         }
     }
